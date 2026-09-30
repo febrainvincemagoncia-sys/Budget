@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Salary & Allocation Budgeter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans">
+
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <header class="border-b border-slate-800 pb-4">
+      <h1 class="text-3xl font-bold text-emerald-400">Monthly Salary Budget Planner</h1>
+      <p class="text-slate-400 text-sm mt-1">Track monthly cash flow and direct end-of-month surplus toward financial goals.</p>
+    </header>
+
+    <!-- Top Dashboard Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400 uppercase font-semibold">Total Monthly Income</span>
+        <div id="displayIncome" class="text-2xl font-bold text-emerald-400 mt-1">$0.00</div>
+      </div>
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400 uppercase font-semibold">Total Expenses</span>
+        <div id="displayExpenses" class="text-2xl font-bold text-rose-400 mt-1">$0.00</div>
+      </div>
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400 uppercase font-semibold">End-of-Month Surplus</span>
+        <div id="displaySurplus" class="text-2xl font-bold text-blue-400 mt-1">$0.00</div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Column 1: Income & Expenses -->
+      <div class="space-y-6">
+        <!-- Salary Section -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-3">
+          <h2 class="text-lg font-semibold text-slate-200">1. Monthly Income</h2>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Net Take-Home Salary ($)</label>
+            <input type="number" id="monthlyIncome" value="4500" placeholder="e.g. 4500" 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <!-- Expense Section -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+          <h2 class="text-lg font-semibold text-slate-200">2. Monthly Expenses</h2>
+          <div class="flex gap-2">
+            <input type="text" id="expenseName" placeholder="Expense name (e.g., Rent)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100">
+            <input type="number" id="expenseAmount" placeholder="Amount ($)" class="w-28 bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-100">
+            <button onclick="addExpense()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-semibold transition">Add</button>
+          </div>
+
+          <ul id="expenseList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Expenses populated dynamically -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Column 2: End-of-Month Allocation -->
+      <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-slate-200">3. End-of-Month Allocations</h2>
+          <span id="unallocatedBadge" class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Unassigned: $0</span>
+        </div>
+        <p class="text-xs text-slate-400">Plan where your remaining surplus cash should be assigned at the end of the month.</p>
+
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>Emergency Fund / Cash Reserve</span>
+              <span id="valEmergency">$0</span>
+            </div>
+            <input type="range" id="sliderEmergency" min="0" max="1000" value="0" step="50" oninput="updateCalculations()" class="w-full accent-emerald-500">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>Retirement & ETF Investments</span>
+              <span id="valInvestments">$0</span>
+            </div>
+            <input type="range" id="sliderInvestments" min="0" max="1000" value="0" step="50" oninput="updateCalculations()" class="w-full accent-blue-500">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>Debt Payoff / Extra Principal</span>
+              <span id="valDebt">$0</span>
+            </div>
+            <input type="range" id="sliderDebt" min="0" max="1000" value="0" step="50" oninput="updateCalculations()" class="w-full accent-purple-500">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>Savings & Vacation Sinking Fund</span>
+              <span id="valSavings">$0</span>
+            </div>
+            <input type="range" id="sliderSavings" min="0" max="1000" value="0" step="50" oninput="updateCalculations()" class="w-full accent-amber-500">
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-700">
+          <button onclick="apply503020Rule()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
+            Apply 50/30/20 Suggested Split
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let expenses = [
+      { name: "Rent / Housing", amount: 1500 },
+      { name: "Groceries & Utilities", amount: 600 },
+      { name: "Car & Insurance", amount: 400 },
+      { name: "Subscriptions & Dining", amount: 300 }
+    ];
+
+    function renderExpenses() {
+      const list = document.getElementById("expenseList");
+      list.innerHTML = "";
+      expenses.forEach((exp, index) => {
+        list.innerHTML += `
+          <li class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-sm">
+            <span>${exp.name}</span>
+            <div class="flex items-center gap-3">
+              <span class="font-semibold text-rose-400">$${exp.amount.toFixed(2)}</span>
+              <button onclick="removeExpense(${index})" class="text-slate-500 hover:text-rose-400 text-xs">✕</button>
+            </div>
+          </li>
+        `;
+      });
+      updateCalculations();
+    }
+
+    function addExpense() {
+      const nameInput = document.getElementById("expenseName");
+      const amountInput = document.getElementById("expenseAmount");
+      if (nameInput.value && amountInput.value > 0) {
+        expenses.push({ name: nameInput.value, amount: parseFloat(amountInput.value) });
+        nameInput.value = "";
+        amountInput.value = "";
+        renderExpenses();
+      }
+    }
+
+    function removeExpense(index) {
+      expenses.splice(index, 1);
+      renderExpenses();
+    }
+
+    function updateCalculations() {
+      const income = parseFloat(document.getElementById("monthlyIncome").value) || 0;
+      const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
+      const surplus = Math.max(0, income - totalExpenses);
+
+      // Slider Max Bounds dynamic update based on surplus
+      const sliders = ["Emergency", "Investments", "Debt", "Savings"];
+      sliders.forEach(s => {
+        const sliderEl = document.getElementById(`slider${s}`);
+        sliderEl.max = surplus;
+      });
+
+      const valEmerg = parseFloat(document.getElementById("sliderEmergency").value) || 0;
+      const valInvest = parseFloat(document.getElementById("sliderInvestments").value) || 0;
+      const valDebt = parseFloat(document.getElementById("sliderDebt").value) || 0;
+      const valSavings = parseFloat(document.getElementById("sliderSavings").value) || 0;
+
+      const totalAllocated = valEmerg + valInvest + valDebt + valSavings;
+      const unallocated = surplus - totalAllocated;
+
+      // Update UI displays
+      document.getElementById("displayIncome").innerText = `$${income.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById("displayExpenses").innerText = `$${totalExpenses.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById("displaySurplus").innerText = `$${surplus.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+      document.getElementById("valEmergency").innerText = `$${valEmerg.toLocaleString()}`;
+      document.getElementById("valInvestments").innerText = `$${valInvest.toLocaleString()}`;
+      document.getElementById("valDebt").innerText = `$${valDebt.toLocaleString()}`;
+      document.getElementById("valSavings").innerText = `$${valSavings.toLocaleString()}`;
+
+      const badge = document.getElementById("unallocatedBadge");
+      badge.innerText = `Unassigned Surplus: $${unallocated.toFixed(2)}`;
+      if (unallocated < 0) {
+        badge.className = "text-xs bg-rose-900 text-rose-200 px-2.5 py-1 rounded-full font-bold";
+      } else {
+        badge.className = "text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full";
+      }
+    }
+
+    function apply503020Rule() {
+      const income = parseFloat(document.getElementById("monthlyIncome").value) || 0;
+      const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
+      const surplus = Math.max(0, income - totalExpenses);
+
+      // Distribute surplus into goals
+      document.getElementById("sliderEmergency").value = Math.round(surplus * 0.30);
+      document.getElementById("sliderInvestments").value = Math.round(surplus * 0.40);
+      document.getElementById("sliderDebt").value = Math.round(surplus * 0.10);
+      document.getElementById("sliderSavings").value = Math.round(surplus * 0.20);
+      updateCalculations();
+    }
+
+    document.getElementById("monthlyIncome").addEventListener("input", updateCalculations);
+    renderExpenses();
+  </script>
+</body>
+</html>
